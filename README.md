@@ -1,5 +1,4 @@
 # HexaScan
-# HexaScan
 
 HexaScan is a unified web vulnerability scanner that automates the detection of common web application security issues, including:
 
@@ -66,8 +65,4 @@ HexaScan/
 - Place new SQLi payloads in `Payloads/Sql_payload/`.
 - Place new XSS payloads in `Payloads/XSS_payload/`.
 
-## Contributing
-Pull requests and issues are welcome!
 
-## License
-MIT License# HexaScan
