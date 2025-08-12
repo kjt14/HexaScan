@@ -24,7 +24,6 @@ def run_all_scans(url, password_dir=None):
         print("\n[=] Running XSS scan...")
         xss_report_path = os.path.join(reports_dir, f"xss_report_{timestamp}.json")
         scan_xss(url)
-        # Move/rename result file if exists
         if os.path.exists("xss_results.json"):
             os.replace("xss_results.json", xss_report_path)
             summary.append(("XSS", "Completed", xss_report_path))
@@ -50,7 +49,6 @@ def run_all_scans(url, password_dir=None):
     try:
         print("\n[=] Running Auth/Session/IDOR scan...")
         final2_report_path = os.path.join(reports_dir, f"final2_report_{timestamp}.txt")
-        # run_scan prints to stdout, so capture output
         from io import StringIO
         old_stdout = sys.stdout
         sys.stdout = mystdout = StringIO()
@@ -76,20 +74,32 @@ def run_all_scans(url, password_dir=None):
     except Exception as e:
         summary.append(("CSRF/Sensitive Data", f"Error: {e}", "-"))
 
-    # Print summary table
-    print("\n=== Scan Summary ===")
-    print(f"{'Scan':<25} {'Status':<20} {'Report File'}")
-    print("-" * 70)
+    # Summary string for UI
+    output_lines = []
+    output_lines.append("\n=== Scan Summary ===")
+    output_lines.append(f"{'Scan':<25} {'Status':<20} {'Report File'}")
+    output_lines.append("-" * 70)
     for scan, status, path in summary:
-        print(f"{scan:<25} {status:<20} {path}")
-    print("-" * 70)
-    print(f"All reports are saved in: {reports_dir}")
+        output_lines.append(f"{scan:<25} {status:<20} {path}")
+    output_lines.append("-" * 70)
+    output_lines.append(f"All reports are saved in: {reports_dir}")
+
+    return "\n".join(output_lines)
+
+# ---------------- Gradio UI ----------------
+import gradio as gr
+
+def gradio_interface(url, password_dir):
+    return run_all_scans(url, password_dir if password_dir else None)
+
+with gr.Blocks() as demo:
+    gr.Markdown("##🛡 Web Vulnerability Scanner")
+    url_input = gr.Textbox(label="Target URL", placeholder="http://testphp.vulnweb.com/listproducts.php?cat=1")
+    pwd_dir_input = gr.Textbox(label="Password Directory (optional)", placeholder="Path to password payloads folder")
+    run_button = gr.Button("Run Scan")
+    output_box = gr.Textbox(label="Scan Output", lines=20)
+
+    run_button.click(fn=gradio_interface, inputs=[url_input, pwd_dir_input], outputs=output_box)
 
 if __name__ == "__main__":
-    import argparse
-    parser = argparse.ArgumentParser(description="Unified Web Vulnerability Scanner")
-    parser.add_argument("--url", required=True, help="Target URL (e.g., http://testphp.vulnweb.com/listproducts.php?cat=1)")
-    parser.add_argument("--password-dir", help="Directory for password payloads (for final2.py)")
-    args = parser.parse_args()
-
-    run_all_scans(args.url, password_dir=args.password_dir)
+    demo.launch()

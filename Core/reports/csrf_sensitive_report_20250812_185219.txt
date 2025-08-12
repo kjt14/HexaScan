@@ -1,0 +1,19 @@
+--- Website Vulnerability Scan Report ---
+Target URL: https://demo.testfire.net/bank/search.aspx?query=bank
+
+
+
+[Vulnerability Summary]
+  - CSRF Token Missing
+
+[+] CSRF Issues:
+  - Form without CSRF token: /search.jsp
+  - Form without CSRF token: doLogin
+
+[+] Sensitive Data Exposed:
+  - None found
+
+[Suggestions]
+Add CSRF token to all forms performing sensitive actions.
+
+[Scan Time]: 2025-08-12 18:56:23
